@@ -196,6 +196,6 @@ with open(outfiles['ZT'], 'w') as f:
     f.write('retries: %d\n' %
         (ZT_RETRIES))
     f.write('retry_tolerance: %s\n' %
-        f_fmt(ZT_RETRY_TOLERANCE, places=2))
+        f_fmt(ZT_RETRY_TOLERANCE, places=3))
 
 print('Wrote [z_tilt] configuration to %s' % outfiles['ZT'])

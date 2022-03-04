@@ -21,7 +21,8 @@ BED_Y_MAX = 235
 
 # [screws_tilt_adjust] options
 SCREW_X_MIN = 29.8
-SCREW_X_MAX = 200.3
+#SCREW_X_MAX = 200.3
+SCREW_X_MAX = 197.9
 SCREW_Y_MIN = 31.3
 SCREW_Y_MAX = 199.5
 
@@ -53,7 +54,7 @@ ZT_STEPPER_X_DIST = 289
 ZT_SPEED = 75
 ZT_HORIZ_MOVE_Z = 10
 ZT_RETRIES = 10
-ZT_RETRY_TOLERANCE = 0.15
+ZT_RETRY_TOLERANCE = 0.125
 
 #######
 # Do not change anything below or the script may break
