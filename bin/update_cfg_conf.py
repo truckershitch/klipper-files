@@ -9,6 +9,7 @@ def f_fmt(val, places=1):
 TESTING = False
 
 CONF_DIR_PATH = '/home/pi/klipper_config/include' # Klipper destination configuration path
+# CONF_DIR_PATH = '.' # Klipper destination configuration path
 BLT_FNAME = 'bltouch.cfg'
 SCREW_FNAME = 'screws_tilt_adjust.cfg'
 ZT_FNAME = 'z_tilt.cfg'
@@ -18,6 +19,7 @@ X_OFF = -25.9
 Y_OFF = -1.9
 BED_X_MAX = 235
 BED_Y_MAX = 235
+ZT_X_MARGIN = 15
 
 # [screws_tilt_adjust] options
 SCREW_X_MIN = 29.8
@@ -26,7 +28,7 @@ SCREW_X_MAX = 197.9
 SCREW_Y_MIN = 31.3
 SCREW_Y_MAX = 199.5
 
-SCREW_HORIZ_MOVE_Z = 10
+SCREW_HORIZ_MOVE_Z = 5
 SCREW_SPEED = 75
 SCREW_THREAD = 'CW-M4'
 
@@ -35,7 +37,7 @@ BLT_SENSOR_PIN = '^PE4'
 BLT_CONTROL_PIN = 'PE5'
 BLT_HOME_X_POS = BED_X_MAX / 2.0
 BLT_HOME_Y_POS = BED_Y_MAX / 2.0
-BLT_Z_HOP = 10
+BLT_Z_HOP = 5
 BLT_Z_HOP_SPEED = 5
 
 # [mesh] options
@@ -52,7 +54,7 @@ MESH_FADE_TARGET = 0
 # [z_tilt] options
 ZT_STEPPER_X_DIST = 289
 ZT_SPEED = 75
-ZT_HORIZ_MOVE_Z = 10
+ZT_HORIZ_MOVE_Z = 5
 ZT_RETRIES = 10
 ZT_RETRY_TOLERANCE = 0.125
 

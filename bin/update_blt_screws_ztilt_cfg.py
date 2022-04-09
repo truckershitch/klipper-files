@@ -10,12 +10,19 @@
 # new files as specified by the OUTFILES
 # variable.
 #
+# Thanks to SourPickel for being a guinea pig
+# As he said, YOLO.
+#
+# No lead screws were broken (yet) as a result
+# of this script.
+#
 # Created July 25, 2021
-# Modified January 10, 2022
+# Modified April 9, 2022
 
 import sys
 from datetime import datetime
 from update_cfg_conf import *
+# from update_cfg_conf_pickel import *
 
 def f_fmt(val, places=1):
     'Format value to fixed number of decimal places'
@@ -47,10 +54,17 @@ ZT_POS_X_MIN = f_fmt(ZT_BED_X_MIDPT - ZT_STEPPER_X_MIDPT - offset['x'])
 ZT_POS_X_MAX = f_fmt(ZT_BED_X_MIDPT + ZT_STEPPER_X_MIDPT - offset['x'])
 ZT_POS_Y = ZT_BED_X_MIDPT - offset['y']
 
-ZT_POINTS_X_MIN = f_fmt(SCREW_X_MIN - offset['x'])
-ZT_POINTS_X_MAX = f_fmt(SCREW_X_MAX - offset['x'])
-ZT_POINTS_Y_MIN = f_fmt(SCREW_Y_MIN - offset['y'])
-ZT_POINTS_Y_MAX = f_fmt(SCREW_Y_MAX - offset['y'])
+# ZT_POINTS_X_MIN = f_fmt(SCREW_X_MIN - offset['x'])
+# ZT_POINTS_X_MAX = f_fmt(SCREW_X_MAX - offset['x'])
+# ZT_POINTS_Y_MIN = f_fmt(SCREW_Y_MIN - offset['y'])
+# ZT_POINTS_Y_MAX = f_fmt(SCREW_Y_MAX - offset['y'])
+ZT_POINT_Y = f_fmt(ZT_BED_Y_MIDPT - offset['y'])
+ZT_POINT_MIN_X = f_fmt(ZT_X_MARGIN - offset['x'])
+ZT_POINT_MIN_Y = ZT_POINT_Y
+ZT_POINT_MID_X = f_fmt(ZT_BED_X_MIDPT - offset['x'])
+ZT_POINT_MID_Y = ZT_POINT_Y
+ZT_POINT_MAX_X = f_fmt(BED_X_MAX - ZT_X_MARGIN - offset['x'])
+ZT_POINT_MAX_Y = ZT_POINT_Y
 
 SCREW_ADJ_X_MIN = f_fmt(SCREW_X_MIN - offset['x'])
 SCREW_ADJ_X_MAX = f_fmt(SCREW_X_MAX - offset['x'])
@@ -149,7 +163,7 @@ with open(outfiles['ZT'], 'w') as f:
         (BED_X_MAX, BED_Y_MAX, ZT_BED_X_MIDPT, ZT_BED_Y_MIDPT))
     f.write('# Subtract offsets from starting coordinates\n#\n')
 
-    f.write('# ** z_postions **\n')
+    f.write('# ** z_positions **\n')
     f.write('# Start X1,X2 at %s +/- %s -> [%s, %s]; Y1 = Y2 = %s\n' %
         (
             ZT_BED_X_MIDPT,
@@ -164,16 +178,23 @@ with open(outfiles['ZT'], 'w') as f:
     f.write('# (X2,Y2) - (%s, %s) = (%s, %s)\n#\n' %
         (offset['cfg_x'], offset['cfg_y'], ZT_POS_X_MAX, ZT_POS_Y))
 
-    f.write('# ** points **\n')
-    f.write('# Bed Screws Xmin,Xmax = [%s, %s]\n' %
-        (SCREW_X_MIN, SCREW_X_MAX))
-    f.write('# Bed Screws Ymin,Ymax = [%s, %s]\n' %
-        (SCREW_Y_MIN, SCREW_Y_MAX))
+    # f.write('# ** points **\n')
+    # f.write('# Bed Screws Xmin,Xmax = [%s, %s]\n' %
+    #     (SCREW_X_MIN, SCREW_X_MAX))
+    # f.write('# Bed Screws Ymin,Ymax = [%s, %s]\n' %
+    #     (SCREW_Y_MIN, SCREW_Y_MAX))
 
-    f.write('# (Xmin,Ymin) - (%s, %s) = (%s, %s)\n' %
-        (offset['cfg_x'], offset['cfg_y'], ZT_POINTS_X_MIN, ZT_POINTS_Y_MIN))
-    f.write('# (Xmax,Ymax) - (%s, %s) = (%s, %s)\n\n' %
-        (offset['cfg_x'], offset['cfg_y'], ZT_POINTS_X_MAX, ZT_POINTS_Y_MAX))
+    # f.write('# (Xmin,Ymin) - (%s, %s) = (%s, %s)\n' %
+    #     (offset['cfg_x'], offset['cfg_y'], ZT_POINTS_X_MIN, ZT_POINTS_Y_MIN))
+    # f.write('# (Xmax,Ymax) - (%s, %s) = (%s, %s)\n\n' %
+    #     (offset['cfg_x'], offset['cfg_y'], ZT_POINTS_X_MAX, ZT_POINTS_Y_MAX))
+    f.write('# X Margin: %s\n; x_offset: %s; y_offset: %s\n'
+        % (ZT_X_MARGIN, offset['cfg_x'], offset['cfg_y']))
+    f.write('# X values: [%s, %s, %s] - (%s) ==> [%s, %s, %s]\n'
+        % ( ZT_X_MARGIN, ZT_BED_X_MIDPT, BED_X_MAX - ZT_X_MARGIN, offset['cfg_x'],
+            ZT_POINT_MIN_X, ZT_POINT_MID_X, ZT_POINT_MAX_X))
+    f.write('# Y value: %s - (%s) ==> %s\n\n'
+        % (ZT_BED_Y_MIDPT, offset['cfg_y'], ZT_POINT_Y))
 
     # config
     f.write('[z_tilt]\n')
@@ -181,14 +202,21 @@ with open(outfiles['ZT'], 'w') as f:
         (ZT_POS_X_MIN, ZT_POS_Y))
     f.write('    %s, %s\n' %
         (ZT_POS_X_MAX, ZT_POS_Y))
+    # f.write('points: %s, %s\n' %
+    #     (ZT_POINTS_X_MIN, ZT_POINTS_Y_MIN))
+    # f.write('    %s, %s\n' %
+    #     (ZT_POINTS_X_MAX, ZT_POINTS_Y_MIN))
+    # f.write('    %s, %s\n' %
+    #     (ZT_POINTS_X_MAX, ZT_POINTS_Y_MAX))
+    # f.write('    %s, %s\n' %
+    #     (ZT_POINTS_X_MIN, ZT_POINTS_Y_MAX))
     f.write('points: %s, %s\n' %
-        (ZT_POINTS_X_MIN, ZT_POINTS_Y_MIN))
+        (ZT_POINT_MIN_X, ZT_POINT_Y))
     f.write('    %s, %s\n' %
-        (ZT_POINTS_X_MAX, ZT_POINTS_Y_MIN))
+        (ZT_POINT_MID_X, ZT_POINT_Y))
     f.write('    %s, %s\n' %
-        (ZT_POINTS_X_MAX, ZT_POINTS_Y_MAX))
-    f.write('    %s, %s\n' %
-        (ZT_POINTS_X_MIN, ZT_POINTS_Y_MAX))
+        (ZT_POINT_MAX_X, ZT_POINT_Y))
+
     f.write('speed: %d\n' %
         (ZT_SPEED))
     f.write('horizontal_move_z: %d\n' %
@@ -196,6 +224,6 @@ with open(outfiles['ZT'], 'w') as f:
     f.write('retries: %d\n' %
         (ZT_RETRIES))
     f.write('retry_tolerance: %s\n' %
-        f_fmt(ZT_RETRY_TOLERANCE, places=3))
+        f_fmt(ZT_RETRY_TOLERANCE, places=2))
 
 print('Wrote [z_tilt] configuration to %s' % outfiles['ZT'])
