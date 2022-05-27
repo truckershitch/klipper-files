@@ -14,6 +14,10 @@ I had issues when I started with heat creep and had problems fixing it, but the 
 
 ## Resources
 
+
+I found a great [DIY Filament Runout Encoder video by Makers Mashup](https://youtu.be/v2mQ4X1J3cs).  It was not hard to build and I've been using it for about six months.  I think it is a simple design and I believe it will be reliable.  And of course DIY is the best.
+
+
 One dude who really has it together, Bob, the Master of Muppets, has a [good page here](https://projects.ttlexceeded.com/index.html)  And that is no joke.  I modified his start macro for my printer -- it helps get that initial bit of plastic rubbed off the side of the bed so it doesn't drop in the first layer.  I just shifted it to the right side.
 
 <b>You may have to adjust that initial stripe to match your extruder's extrustion limits.</b>  His gcode parameters were a tad too high for my setup.  Klipper threw an error until I tweaked it a little.

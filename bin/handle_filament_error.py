@@ -9,10 +9,14 @@ import requests as req
 from datetime import datetime as dt, timedelta as td
 from klipper_email_cfg import * 
 from send_email import send_mail
+from send_msg_to_mqtt import send_mqtt
 
 URL = 'http://localhost:7125'
 LOC_PRINT_STATS = '/printer/objects/query?print_stats'
 LOC_GCODE_METADATA = '/server/files/metadata?filename=%s'
+
+TOPIC = 'ha/basement/printer/filament_error'
+MSG = 'on'
 
 def main():
     res = req.get(url=URL + LOC_PRINT_STATS)
@@ -44,6 +48,10 @@ def main():
     body += 'Job paused at %s\n' % (
         curr_time
     )
+
+    print('Publishing "%s" to topic %s' % (MSG, TOPIC))
+
+    send_msg(TOPIC, MSG, retain=False)
 
     print('Sending filament error sensor email.')
 
