@@ -16,7 +16,6 @@ LOC_PRINT_STATS = '/printer/objects/query?print_stats'
 LOC_GCODE_METADATA = '/server/files/metadata?filename=%s'
 
 TOPIC = 'ha/basement/printer/filament_error'
-MSG = 'on'
 
 def main():
     res = req.get(url=URL + LOC_PRINT_STATS)
@@ -42,16 +41,20 @@ def main():
     body += 'Subject: Print job "%s" incomplete -- Runout sensor triggered @ %s\n\n' % (
             job_name, curr_time
         )
-    body += 'Filament error sensor triggered for job %s\n' % (
+    
+    f_msg_1 = 'Filament error sensor triggered for job %s' % (
         job_name
     )
-    body += 'Job paused at %s\n' % (
+    f_msg_2 = 'Job paused at %s' % (
         curr_time
     )
+    
+    body += f_msg_1 + '\n' + f_msg_2
+    mqtt_msg = '{"state": "on", "msg": "%s\\n%s"}' % (f_msg_1, f_msg_2)
+    
+    print('Publishing "%s" to topic %s' % (mqtt_msg, TOPIC))
 
-    print('Publishing "%s" to topic %s' % (MSG, TOPIC))
-
-    send_msg(TOPIC, MSG, retain=False)
+    send_mqtt(TOPIC, mqtt_msg, retain=False)
 
     print('Sending filament error sensor email.')
 

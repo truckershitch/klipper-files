@@ -6,18 +6,38 @@
 ## See https://github.com/th33xitus/kiauh/blob/master/docs/gcode_shell_command.md
 #
 # Created February 1, 2022
-# Modified February 21, 2022
+# Modified September 3, 2022
 
-from curses import noecho
 import sys
 import requests as req
-from datetime import datetime as dt, timedelta as td
+from datetime import datetime as dt, timedelta
 from klipper_email_cfg import * 
 from send_email import send_mail
 
 URL = 'http://localhost:7125'
 LOC_PRINT_STATS = '/printer/objects/query?print_stats'
 LOC_GCODE_METADATA = '/server/files/metadata?filename=%s'
+
+# see https://miguendes.me/how-to-use-datetimetimedelta-in-python-with-examples#heading-how-to-format-a-timedelta-as-string
+def format_timedelta(delta: timedelta) -> str:
+    """Formats a timedelta duration to [N days] %H:%M:%S format"""
+    seconds = int(delta.total_seconds())
+
+    secs_in_a_day = 86400
+    secs_in_a_hour = 3600
+    secs_in_a_min = 60
+
+    days, seconds = divmod(seconds, secs_in_a_day)
+    hours, seconds = divmod(seconds, secs_in_a_hour)
+    minutes, seconds = divmod(seconds, secs_in_a_min)
+
+    time_fmt = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+    if days > 0:
+        suffix = "s" if days > 1 else ""
+        return f"{days} day{suffix} {time_fmt}"
+
+    return time_fmt
 
 def main():
     def bad_res(name, r=None):
@@ -47,17 +67,21 @@ def main():
     except:
         bad_res('gcode metadata', res)
 
+    pst = gc_data['print_start_time']
+
     try:
-        pst = gc_data['print_start_time']
+        job_start_time_dt = dt.fromtimestamp(pst)
         job_start_time = dt.strftime(
-            dt.fromtimestamp(pst), TIME_FORMAT
+            job_start_time_dt, TIME_FORMAT
         )
-    except ValueError as e:
+    except TypeError as e:
         print('Cannot parse %s into a datetime object: %s' %
             (pst, e))
+        job_start_time = 'Unknown'
 
+    job_end_time_dt = dt.now()
     job_end_time = dt.strftime(
-        dt.now(), TIME_FORMAT
+        job_end_time_dt, TIME_FORMAT
     )    
 
     body = 'To: %s\n' % DEST_EMAIL
@@ -70,9 +94,9 @@ def main():
             job_start_time,
             job_end_time
         )
-        #body += 'Duration: %s seconds' % (
-        #     int(job_total_duration)
-        # )
+    body += 'Duration: %s' % (
+        format_timedelta(job_end_time_dt - job_start_time_dt)
+    )
     print('Sending job completion email for %s' % job_name)
 
     send_mail(body)

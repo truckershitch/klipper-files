@@ -8,8 +8,7 @@ def f_fmt(val, places=1):
 # True for test files, False for live
 TESTING = False
 
-CONF_DIR_PATH = '/home/pi/klipper_config/include' # Klipper destination configuration path
-# CONF_DIR_PATH = '.' # Klipper destination configuration path
+CONF_DIR_PATH = '/home/pi/klipper_config/include' if not TESTING else '.' # Klipper destination configuration path
 BLT_FNAME = 'bltouch.cfg'
 SCREW_FNAME = 'screws_tilt_adjust.cfg'
 ZT_FNAME = 'z_tilt.cfg'
@@ -43,7 +42,7 @@ BLT_Z_HOP_SPEED = 5
 # [mesh] options
 MESH_SPEED = 120
 MESH_HORIZ_MOVE_Z = 5
-MESH_MARGIN = 15
+MESH_MARGIN = 10
 MESH_PROBE_CNT_X = 5
 MESH_PROBE_CNT_Y = 5
 MESH_ALG = 'bicubic'

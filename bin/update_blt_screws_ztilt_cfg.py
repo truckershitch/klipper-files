@@ -17,12 +17,12 @@
 # of this script.
 #
 # Created July 25, 2021
-# Modified April 9, 2022
+# Modified September 3, 2022
 
+from email import message
 import sys
 from datetime import datetime
 from update_cfg_conf import *
-# from update_cfg_conf_pickel import *
 
 def f_fmt(val, places=1):
     'Format value to fixed number of decimal places'
@@ -54,10 +54,6 @@ ZT_POS_X_MIN = f_fmt(ZT_BED_X_MIDPT - ZT_STEPPER_X_MIDPT - offset['x'])
 ZT_POS_X_MAX = f_fmt(ZT_BED_X_MIDPT + ZT_STEPPER_X_MIDPT - offset['x'])
 ZT_POS_Y = ZT_BED_X_MIDPT - offset['y']
 
-# ZT_POINTS_X_MIN = f_fmt(SCREW_X_MIN - offset['x'])
-# ZT_POINTS_X_MAX = f_fmt(SCREW_X_MAX - offset['x'])
-# ZT_POINTS_Y_MIN = f_fmt(SCREW_Y_MIN - offset['y'])
-# ZT_POINTS_Y_MAX = f_fmt(SCREW_Y_MAX - offset['y'])
 ZT_POINT_Y = f_fmt(ZT_BED_Y_MIDPT - offset['y'])
 ZT_POINT_MIN_X = f_fmt(ZT_X_MARGIN - offset['x'])
 ZT_POINT_MIN_Y = ZT_POINT_Y
@@ -70,6 +66,11 @@ SCREW_ADJ_X_MIN = f_fmt(SCREW_X_MIN - offset['x'])
 SCREW_ADJ_X_MAX = f_fmt(SCREW_X_MAX - offset['x'])
 SCREW_ADJ_Y_MIN = f_fmt(SCREW_Y_MIN - offset['y'])
 SCREW_ADJ_Y_MAX = f_fmt(SCREW_Y_MAX - offset['y'])
+
+MESH_X_MIN = f_fmt(MESH_MARGIN)
+MESH_X_MAX = f_fmt(BED_X_MAX - MESH_MARGIN + offset['x'])
+MESH_Y_MIN = f_fmt(MESH_MARGIN)
+MESH_Y_MAX = f_fmt(BED_Y_MAX - MESH_MARGIN + offset['y'])
 
 SCREW_DATA = (
     {
@@ -99,6 +100,7 @@ def write_header(index):
     f.write('# Using:\n# x_offset = %s\n# y_offset = %s\n' %
         (offset['x'], offset['y']))
 
+# bltouch, safe_z_home, bed_mesh
 with open(outfiles['BLT'], 'w') as f:
     write_header('BLT')
 
@@ -119,14 +121,14 @@ with open(outfiles['BLT'], 'w') as f:
     f.write('horizontal_move_z: %s\n' % MESH_HORIZ_MOVE_Z)
     f.write('mesh_min: %s, %s\n' %
         (
-            MESH_MARGIN,
-            MESH_MARGIN
+            MESH_X_MIN,
+            MESH_Y_MIN
         )
     )
     f.write('mesh_max: %s, %s\n' %
         (
-            BED_X_MAX - MESH_MARGIN,
-            BED_Y_MAX - MESH_MARGIN
+            MESH_X_MAX,
+            MESH_Y_MAX
         )
     )
     f.write('probe_count: %s, %s\n' % (MESH_PROBE_CNT_X, MESH_PROBE_CNT_Y))
@@ -135,8 +137,9 @@ with open(outfiles['BLT'], 'w') as f:
     f.write('fade_end: %s\n' % MESH_FADE_END)
     f.write('fade_target: %s\n' % MESH_FADE_TARGET)
 
-print('Wrote [bltouch] configuration to %s' % outfiles['BLT'])
+print('Wrote [bltouch], [safe_z_home], [bed_mesh] configurations to %s' % outfiles['BLT'])
 
+# screws_tilt_adjust
 with open(outfiles['SCREW'], 'w') as f:
     write_header('SCREW')
 
@@ -153,6 +156,7 @@ with open(outfiles['SCREW'], 'w') as f:
 
 print('Wrote [screws_tilt_adjust] configuration to %s' % outfiles['SCREW'])
 
+# z_tilt
 with open(outfiles['ZT'], 'w') as f:
     write_header('ZT')
 
@@ -178,16 +182,6 @@ with open(outfiles['ZT'], 'w') as f:
     f.write('# (X2,Y2) - (%s, %s) = (%s, %s)\n#\n' %
         (offset['cfg_x'], offset['cfg_y'], ZT_POS_X_MAX, ZT_POS_Y))
 
-    # f.write('# ** points **\n')
-    # f.write('# Bed Screws Xmin,Xmax = [%s, %s]\n' %
-    #     (SCREW_X_MIN, SCREW_X_MAX))
-    # f.write('# Bed Screws Ymin,Ymax = [%s, %s]\n' %
-    #     (SCREW_Y_MIN, SCREW_Y_MAX))
-
-    # f.write('# (Xmin,Ymin) - (%s, %s) = (%s, %s)\n' %
-    #     (offset['cfg_x'], offset['cfg_y'], ZT_POINTS_X_MIN, ZT_POINTS_Y_MIN))
-    # f.write('# (Xmax,Ymax) - (%s, %s) = (%s, %s)\n\n' %
-    #     (offset['cfg_x'], offset['cfg_y'], ZT_POINTS_X_MAX, ZT_POINTS_Y_MAX))
     f.write('# X Margin: %s\n; x_offset: %s; y_offset: %s\n'
         % (ZT_X_MARGIN, offset['cfg_x'], offset['cfg_y']))
     f.write('# X values: [%s, %s, %s] - (%s) ==> [%s, %s, %s]\n'
@@ -202,14 +196,6 @@ with open(outfiles['ZT'], 'w') as f:
         (ZT_POS_X_MIN, ZT_POS_Y))
     f.write('    %s, %s\n' %
         (ZT_POS_X_MAX, ZT_POS_Y))
-    # f.write('points: %s, %s\n' %
-    #     (ZT_POINTS_X_MIN, ZT_POINTS_Y_MIN))
-    # f.write('    %s, %s\n' %
-    #     (ZT_POINTS_X_MAX, ZT_POINTS_Y_MIN))
-    # f.write('    %s, %s\n' %
-    #     (ZT_POINTS_X_MAX, ZT_POINTS_Y_MAX))
-    # f.write('    %s, %s\n' %
-    #     (ZT_POINTS_X_MIN, ZT_POINTS_Y_MAX))
     f.write('points: %s, %s\n' %
         (ZT_POINT_MIN_X, ZT_POINT_Y))
     f.write('    %s, %s\n' %
